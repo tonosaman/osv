@@ -26,6 +26,7 @@ public:
     virtual ~rng();
 
     virtual std::string get_name() const { return "virtio-rng"; }
+    u16 virtqueues_nr() const override { return 1; }
 
     virtual size_t get_random_bytes(char* buf, size_t size) override;
 

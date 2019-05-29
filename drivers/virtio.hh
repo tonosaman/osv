@@ -72,6 +72,8 @@ public:
 
     virtual void dump_config();
 
+    virtual u16 virtqueues_nr() const = 0;
+
     void probe_virt_queues();
     vring* get_virt_queue(unsigned idx);
 

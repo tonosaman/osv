@@ -116,6 +116,7 @@ void virtio_driver::probe_virt_queues()
 {
     u16 qsize = 0;
 
+    assert(virtqueues_nr() <= max_virtqueues_nr);
     do {
 
         if (_num_queues >= max_virtqueues_nr) {

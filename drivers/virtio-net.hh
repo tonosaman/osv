@@ -209,6 +209,7 @@ public:
 
     virtual std::string get_name() const { return _driver_name; }
     void read_config();
+    u16 virtqueues_nr() const override { return 2; }
 
     virtual u32 get_driver_features();
 

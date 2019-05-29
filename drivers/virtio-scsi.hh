@@ -148,6 +148,7 @@ public:
 
     virtual std::string get_name() const { return _driver_name; }
     void read_config();
+    u16 virtqueues_nr() const override { return VIRTIO_SCSI_QUEUE_REQ; }
 
     virtual u32 get_driver_features();
 

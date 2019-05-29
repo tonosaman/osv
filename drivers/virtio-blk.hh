@@ -28,6 +28,7 @@ public:
         VIRTIO_BLK_F_WCE        = 9,  /* Writeback mode enabled after reset */
         VIRTIO_BLK_F_TOPOLOGY   = 10, /* Topology information is available */
         VIRTIO_BLK_F_CONFIG_WCE = 11, /* Writeback mode available in config */
+        VIRTIO_BLK_F_MQ         = 12, /* Support more than one vq */
     };
 
     enum {
@@ -96,6 +97,10 @@ public:
 
             /* writeback mode (if VIRTIO_BLK_F_CONFIG_WCE) */
             u8 wce;
+            u8 unused;
+
+            /* number of vqs, only available when VMM_VIRTIO_BLK_F_MQ is set */
+            u16 num_queues;
     } __attribute__((packed));
 
     /* This is the first element of the read scatter-gather list. */
@@ -124,6 +129,7 @@ public:
 
     virtual std::string get_name() const { return _driver_name; }
     void read_config();
+    u16 virtqueues_nr() const override { return _config.num_queues; }
 
     virtual u32 get_driver_features();
 

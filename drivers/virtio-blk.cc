@@ -36,6 +36,7 @@ TRACEPOINT(trace_virtio_blk_read_config_blk_size, "blk_size=%u", u32);
 TRACEPOINT(trace_virtio_blk_read_config_topology, "physical_block_exp=%u, alignment_offset=%u, min_io_size=%u, opt_io_size=%u", u32, u32, u32, u32);
 TRACEPOINT(trace_virtio_blk_read_config_wce, "wce=%u", u32);
 TRACEPOINT(trace_virtio_blk_read_config_ro, "readonly=true");
+TRACEPOINT(trace_virtio_blk_read_config_num_queues, "num_queues=%u", u32);
 TRACEPOINT(trace_virtio_blk_make_request_seg_max, "request of size %d needs more segment than the max %d", size_t, u32);
 TRACEPOINT(trace_virtio_blk_make_request_readonly, "write on readonly device");
 TRACEPOINT(trace_virtio_blk_wake, "");
@@ -188,6 +189,12 @@ void blk::read_config()
     READ_CONFIGURATION_FIELD(blk_config,capacity,_config.capacity)
     trace_virtio_blk_read_config_capacity(_config.capacity);
 
+    if (get_guest_feature_bit(VIRTIO_BLK_F_MQ)) {
+        READ_CONFIGURATION_FIELD(blk_config,num_queues,_config.num_queues)
+        trace_virtio_blk_read_config_num_queues(_config.num_queues);
+    } else {
+        _config.num_queues = 1;
+    }
     if (get_guest_feature_bit(VIRTIO_BLK_F_SIZE_MAX)) {
         READ_CONFIGURATION_FIELD(blk_config,size_max,_config.size_max)
         trace_virtio_blk_read_config_size_max(_config.size_max);
