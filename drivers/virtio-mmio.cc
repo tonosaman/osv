@@ -59,7 +59,8 @@ void mmio_device::kick_queue(int queue_num)
 void mmio_device::select_queue(int queue_num)
 {
     mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_SEL, queue_num);
-    assert(!mmio_getl(_addr_mmio + VIRTIO_MMIO_QUEUE_READY));
+    if (_version > 1)
+        assert(!mmio_getl(_addr_mmio + VIRTIO_MMIO_QUEUE_READY));
 }
 
 u16 mmio_device::get_queue_size()
@@ -71,23 +72,28 @@ void mmio_device::setup_queue(vring* queue)
 {
     // Set size
     mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_NUM, queue->size());
-    //
-    // Pass addresses
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_DESC_LOW, (u32)queue->get_desc_addr());
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_DESC_HIGH, (u32)(queue->get_desc_addr() >> 32));
+    if (_version == 1) {
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_ALIGN, get_vring_alignment());
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_PFN, queue->get_desc_addr() >> (ffs(get_vring_alignment()) - 1));
+    } else {
+        // Pass addresses
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_DESC_LOW, (u32)queue->get_desc_addr());
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_DESC_HIGH, (u32)(queue->get_desc_addr() >> 32));
 
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_AVAIL_LOW, (u32)queue->get_avail_addr());
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_AVAIL_HIGH, (u32)(queue->get_avail_addr() >> 32));
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_AVAIL_LOW, (u32)queue->get_avail_addr());
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_AVAIL_HIGH, (u32)(queue->get_avail_addr() >> 32));
 
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_USED_LOW, (u32)queue->get_used_addr());
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_USED_HIGH, (u32)(queue->get_used_addr() >> 32));
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_USED_LOW, (u32)queue->get_used_addr());
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_USED_HIGH, (u32)(queue->get_used_addr() >> 32));
+    }
 }
 
 void mmio_device::activate_queue(int queue)
 {   //
     // Make it ready
     select_queue(queue);
-    mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_READY, 1 );
+    if (_version > 1)
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_QUEUE_READY, 1);
 }
 
 u8 mmio_device::read_and_ack_isr()
@@ -117,9 +123,9 @@ bool mmio_device::parse_config()
     }
 
     // Check device version
-    u32 version = mmio_getl(_addr_mmio + VIRTIO_MMIO_VERSION);
-    if (version < 1 || version > 2) {
-        debugf( "Version %ld not supported!\n", version);
+    _version = mmio_getl(_addr_mmio + VIRTIO_MMIO_VERSION);
+    if (_version < 1 || _version > 2) {
+        debugf( "Version %ld not supported!\n", _version);
         return false;
     }
 
@@ -132,6 +138,10 @@ bool mmio_device::parse_config()
         return false;
     }
     _vendor_id = mmio_getl(_addr_mmio + VIRTIO_MMIO_VENDOR_ID);
+
+    if (_version == 1) {
+        mmio_setl(_addr_mmio + VIRTIO_MMIO_GUEST_PAGE_SIZE, PAGE_SIZE);
+    }
 
     debugf("Detected virtio-mmio device: (%ld,%ld)\n", _device_id, _vendor_id);
     return true;

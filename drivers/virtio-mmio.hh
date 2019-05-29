@@ -41,6 +41,9 @@ using namespace hw;
 /* Activated features set selector - Write Only */
 #define VIRTIO_MMIO_DRIVER_FEATURES_SEL	0x024
 
+/* Guest's memory page size in bytes - Write Only */
+#define VIRTIO_MMIO_GUEST_PAGE_SIZE	0x028
+
 /* Queue selector - Write Only */
 #define VIRTIO_MMIO_QUEUE_SEL		0x030
 
@@ -49,6 +52,12 @@ using namespace hw;
 
 /* Queue size for the currently selected queue - Write Only */
 #define VIRTIO_MMIO_QUEUE_NUM		0x038
+
+/* Used Ring alignment for the currently selected queue - Write Only */
+#define VIRTIO_MMIO_QUEUE_ALIGN		0x03c
+
+/* Guest's PFN for the currently selected queue - Read Write */
+#define VIRTIO_MMIO_QUEUE_PFN		0x040
 
 /* Ready bit for the currently selected queue - Read Write */
 #define VIRTIO_MMIO_QUEUE_READY		0x044
@@ -141,6 +150,7 @@ private:
     //u64 _id;
     u16 _vendor_id;
     u16 _device_id;
+    u32 _version;
 
     mmioaddr_t _addr_mmio;
     std::unique_ptr<gsi_edge_interrupt> _irq;
