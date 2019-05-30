@@ -140,7 +140,7 @@ public:
 
     virtual void dump_config() {}
 
-    virtual bool is_modern() { return true; };
+    virtual bool is_modern() { return _version > 1; };
     virtual size_t get_vring_alignment() { return PAGE_SIZE; }
 
     bool parse_config();
