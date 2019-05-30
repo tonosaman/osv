@@ -104,7 +104,9 @@ u8 mmio_device::read_config(u32 offset)
 
 void mmio_device::register_interrupt(interrupt_factory irq_factory)
 {
+#ifndef AARCH64_PORT_STUB
     _irq.reset(irq_factory.create_gsi_edge_interrupt());
+#endif
 }
 
 bool mmio_device::parse_config()
