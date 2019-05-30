@@ -36,13 +36,18 @@ start_elf:
         mov     x29, xzr
         bl      premain
 
-        adrp    x3, __loader_argc
-        ldr     x0, [x3, #:lo12:__loader_argc]
-        adrp    x3, __loader_argv
-        ldr     x1, [x3, #:lo12:__loader_argv]
+        ldr     x3, loader_argc
+        ldr     w0, [x3]
+        ldr     x3, loader_argv
+        ldr     x1, [x3]
         bl      main
 
         bl      halt
+
+loader_argc:
+	.dword __loader_argc
+loader_argv:
+	.dword __loader_argv
 
 init_stack:
         mov     x0, #1     // select SP_ELx
