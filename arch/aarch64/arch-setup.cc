@@ -28,6 +28,14 @@
 
 #include <alloca.h>
 
+
+#include "drivers/virtio-mmio.hh"
+static void _parse_cmdline(char *cmdline)
+{
+    virtio::parse_mmio_device_configuration(cmdline);
+    osv::parse_cmdline(cmdline);
+}
+
 void setup_temporary_phys_map()
 {
     // duplicate 1:1 mapping into phys_mem
@@ -114,7 +122,7 @@ void arch_setup_free_memory()
 
     mmu::switch_to_runtime_page_tables();
 
-    osv::parse_cmdline(cmdline);
+    _parse_cmdline(cmdline);
 }
 
 void arch_setup_tls(void *tls, const elf::tls_data& info)
@@ -165,6 +173,9 @@ void arch_init_drivers()
 	    pci::pci_device_enumeration();
 	    boot_time.event("pci enumerated");
     }
+
+    // Register any parsed virtio-mmio devices
+    virtio::register_mmio_devices(device_manager::instance());
 
     // Initialize all drivers
     hw::driver_manager* drvman = hw::driver_manager::instance();

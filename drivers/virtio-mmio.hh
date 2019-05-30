@@ -153,7 +153,9 @@ private:
     u32 _version;
 
     mmioaddr_t _addr_mmio;
+#ifndef AARCH64_PORT_STUB
     std::unique_ptr<gsi_edge_interrupt> _irq;
+#endif
 };
 
 void parse_mmio_device_configuration(char *cmdline);
