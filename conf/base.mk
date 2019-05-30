@@ -8,4 +8,4 @@ conf-logger_debug=0
 # Set to 1 in mode=debug.
 # This macro controls the NDEBUG macro that is used to identify the debug
 # build variant in the code.
-conf-DEBUG_BUILD=0
+conf-DEBUG_BUILD=1

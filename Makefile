@@ -314,7 +314,8 @@ gcc-sysroot = $(if $(CROSS_PREFIX), --sysroot external/$(arch)/gcc.bin) \
 #   mydir/*.o EXTRA_FLAGS = <MY_STUFF>
 EXTRA_FLAGS = -D__OSV_CORE__ -DOSV_KERNEL_BASE=$(kernel_base) -DOSV_LZKERNEL_BASE=$(lzkernel_base)
 EXTRA_LIBS =
-COMMON = $(autodepend) -g -Wall -Wno-pointer-arith $(CFLAGS_WERROR) -Wformat=0 -Wno-format-security \
+COMMON = $(autodepend) -Wall -Wno-pointer-arith $(CFLAGS_WERROR) -Wformat=0 -Wno-format-security \
+	-gdwarf-5 -fvar-tracking-assignments -Og -ginternal-reset-location-views -gstatement-frontiers -ginline-points -gcolumn-info -grecord-gcc-switches -gvariable-location-views=incompat5 \
 	-D __BSD_VISIBLE=1 -U _FORTIFY_SOURCE -fno-stack-protector $(INCLUDES) \
 	$(kernel-defines) \
 	-fno-omit-frame-pointer $(compiler-specific) \
@@ -473,7 +474,7 @@ acpi-defines = -DACPI_MACHINE_WIDTH=64 -DACPI_USE_LOCAL_CACHE
 acpi-source := $(shell find external/$(arch)/acpica/source/components -type f -name '*.c')
 acpi = $(patsubst %.c, %.o, $(acpi-source))
 
-$(acpi:%=$(out)/%): CFLAGS += -fno-strict-aliasing -Wno-stringop-truncation
+$(acpi:%=$(out)/%): CFLAGS += -fno-strict-aliasing
 
 endif # x64
 

@@ -74,7 +74,7 @@ def strip_file(filename):
         if not os.path.exists(stripped_filename) \
                 or (os.path.getmtime(stripped_filename) < \
                             os.path.getmtime(filename)):
-            ret = subprocess.call(["strip", "-o", stripped_filename, filename])
+            ret = subprocess.call([os.environ['CROSS_PREFIX'] + "strip", "-o", stripped_filename, filename])
             if ret != 0:
                 print("Failed stripping %s. Using original." % filename)
                 return filename
